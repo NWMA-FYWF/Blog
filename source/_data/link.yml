@@ -1,0 +1,28 @@
+- class_name: LINKS
+  class_desc: nothing
+  link_list:
+    - name: NWMA_FYWF
+      link: https://nf.com
+      descr: NF's blog 
+
+- class_name: ShareSite
+  class_desc: share 
+  link_list:
+    - name: GitHub
+      link: https://www.github.com/
+      descr: Share for your friend in GitHub
+
+    - name: bilibili
+      link: https://www.bilibili.com/
+      descr: Share for your friend in bilibili
+
+    - name: Youtube
+      link: https://www.youtube.com/
+      avatar: https://i.loli.net/2020/05/14/9ZkGg8v3azHJfM1.png
+      descr: Share for your friend in YouTube
+
+    - name: Twitter
+      link: https://twitter.com/
+      avatar: https://i.loli.net/2020/05/14/5VyHPQqR6LWF39a.png
+      descr: Share for your friend in Twitter
+
