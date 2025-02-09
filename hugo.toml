@@ -1,0 +1,4 @@
+baseURL = 'https://example.org/'
+languageCode = 'zh-cn'
+title = " NWMA_FYWF's blog "
+theme = "PaperMod" 
