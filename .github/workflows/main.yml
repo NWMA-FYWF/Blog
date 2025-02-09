@@ -1,5 +1,9 @@
 name: Update Submodules
 
+permissions:
+  contents: write  # 允许写入内容
+  issues: read     # 允许读取问题
+
 on:
   push:
     branches:
@@ -15,6 +19,11 @@ jobs:
         with:
           submodules: true  # 检出子模块
 
+      - name: Set up Git user
+        run: |
+          git config --global user.email "NWMA_FYWF@Hotmail.com"
+          git config --global user.name "NWMA-FYWF"
+
       - name: Update submodules
         run: |
           git submodule update --remote
@@ -25,3 +34,9 @@ jobs:
           git add .
           git commit -m "Updated submodule with unrelated histories" || echo "No changes to commit"
           git push origin master  # 推送到主分支
+
+      - name: Push changes
+        run: |
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/NWMA-FYWF/Blog.git 
+main
+
