@@ -20,7 +20,7 @@ jobs:
           git submodule update --remote
           cd themes/PaperMod  # 进入子模块目录
           git fetch origin  # 获取远程更新
-          git merge origin/main --allow-unrelated-histories  # 合并不相关的历史
+          git merge origin/master --allow-unrelated-histories  # 合并不相关的历史
           cd ../..  # 返回主目录
           git add .
           git commit -m "Updated submodule with unrelated histories" || echo "No changes to commit"
