@@ -1,0 +1,144 @@
+baseURL = 'https://example.org/'
+languageCode = 'zh-cn'
+title = " NWMA_FYWF's blog "
+theme = "PaperMod" 
+
+cleanDestinationDir = true
+enableEmoji = true              # 允许使用Emoji表情
+enableInlineShortcodes = true   # 允许内联短码
+enableRobotsTXT = true          # 允许爬虫抓取到搜索引擎
+hasCJKLanguage = true           # 自动检测是否包含中文日文韩文
+pagination.pagerSize = 15       # 每页文章数量
+
+# 语言设置
+defaultContentLanguage = "zh"
+
+# 单语言，必须在此处，以下设置之前
+[languages]
+[languages.zh]
+    languageName = "中文"
+
+[markup.goldmark.renderer]
+    unsafe = true               # html标签
+[markup.highlight]
+    codeFences = true           # 代码框
+    guessSyntax = true          # 猜测代码类型
+    lineNos = true              # 显示行号
+    lineNumbersInTable = false  # table分隔行号与代码
+    noClasses = true            # 代码块style而非class
+    style = "monokai"           # 配色方案
+
+# 菜单设置
+[[menu.main]]
+    name = "搜索"
+    pre = "<i class='fa fa-search'></i>"
+    weight = 960
+    identifier = "search"
+    url = "/search"
+[[menu.main]]
+    name = "文章"
+    pre = "<i class='fa fa-list'></i>"
+    weight = 970
+    identifier = "posts"
+    url = "/posts"
+[[menu.main]]
+    name = "友链"
+    pre = "<i class='fa fa-link'></i>"
+    weight = 990
+    identifier = "links"
+    url = "/links"
+[[menu.main]]
+    name = "关于"
+    pre = "<i class='fa fa-info-circle'></i>"
+    weight = 1000
+    identifier = "about"
+    url = "/about"
+
+[[permalinks]]
+    post = "/post/:section/:slug/"  # 链接格式
+
+# 搜索功能
+[outputs]
+    home = ["HTML", "RSS", "JSON"]
+
+# 主题设置
+[params]
+    env = "production"
+    description = "啊？"
+    author = "NWMA_FYWF"
+    DateFormat = "2006-01-02"
+    ShowCodeCopyButtons = true  # 代码复制按钮
+    ShowFullTextinRSS = true    # RSS展示全文
+    defaultTheme = "dark"       # 默认主题颜色
+    hideSummary = false         # 隐藏摘要
+    showtoc = true              # 显示目录
+    tocopen = true              # 目录默认展开
+    ShowPostNavLinks = true     # 显示上一篇/下一篇
+    ShowBreadCrumbs = true      # 文章顶部面包屑导航
+    # ShowRssButtonInSectionTermList = true
+    comments = false             # 展示评论
+    hideFooter = true          # 隐藏页脚信息
+    # ShowAllPagesInArchive = true #
+
+# 左上角标签
+[params.label]
+    text = "NWMA_FYWF's blog"
+    # icon = "images/favicon-32x32-.png"
+    # iconHeight = 36
+
+[params.assets]
+    favicon = "images/favicon-16x16-.png"        # 浏览器标签图标
+    favicon16x16 = "images/favicon-16x16-.png"   # 浏览器标签图标
+    favicon32x32 = "images/favicon-32x32-.png"   # 浏览器标签图标
+    disableHLJS = true  # 不使用highlight.js
+
+[params.profileMode]
+    enabled = true  # 个人主页模式
+    title = "NWMA_FYWF"
+    subtitle = "啊？"
+    imageUrl = "https://telegraph-image-1zj.pages.dev/file/AgACAgUAAyEGAASNlNuWAAMdZ6i3v3uOZvdzx-dcO3QTAncolhwAAi7CMRvXs0hVC0hX5sI0RooBAAMCAAN4AAM2BA.jpg"
+    imageWidth = "150"
+    imageHeight = "150"
+
+# 主页按钮
+# [[params.profileMode.buttons]]
+#     name = "寄术"
+#     url = "/post/tech"
+# [[params.profileMode.buttons]]
+#     name = "牲祸"
+#     url = "/post/life"
+
+# 社交图标
+[[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/NWMA-FYWF"
+[[params.socialIcons]]
+    name = "email"
+    url = "mailto:qweasdasdzxc@hotmail.com"
+# [[params.socialIcons]]
+#     name = "RSS"
+#     url = "posts/index.xml"
+
+# fuse.js模糊搜索
+[params.fuseOpts]
+  isCaseSensitive = false   # 不区分大小写
+  shouldSort = true         # 搜索结果排序
+  location = 0
+  distance = 1000
+  threshold = 0.4
+  minMatchCharLength = 0
+  keys = ["title", "permalink", "summary", "content"]
+
+# 分类等级
+[taxonomies]
+    category = "categories"
+    tag = "tags"
+    series = "series"
+
+# 评论
+# [params.twikoo]
+#     version = "1.6.16"
+
+# 访客统计
+# [params.busuanzi]
+#    enable = true
