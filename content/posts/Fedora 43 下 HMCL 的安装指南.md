@@ -1,93 +1,95 @@
 ---
 title: Fedora 43 下 HMCL 的安装指南
-description: 
-tags: [HMCL, Linux]
-date: 2025-11-22T10:45:00+08:00
+description:
+tags: [HMCL 启动器]
+date: 2026-02-15T16:25:00+08:00
 author: NWMA_FYWF
-draft: true
+draft: false
 ---
 
-# Fedora 43 下安装 `HMCL` 
+前一段在 Fedora 43 上尝试运行 HMCL 时遇到了一个问题。即明明已经安装了 OpenJDK，却提示缺少 JavaFX 组件。经过一番折腾，终于找到了解决方案，在此记录分享
 
-> data: 2025/11/22 - 10:45 | by: NMWA_FYWF
+--- 
 
-> [!CAUTION]
->
-> ## 注意! ! ! 
->
-> 直接 `java -jar HMCL-3.7.5.jar` 出现如下错误
->
-> ```bash
-> dev@192:~/.local/opt/hmcl$ java -jar HMCL-3.7.5.jar 
-> [09:47:11] [@.util.SelfDependencyPatcher.patch/INFO] Missing JavaFX dependencies, attempting to patch in missing classes
-> Exception in thread "main" java.awt.HeadlessException: 
-> No X11 DISPLAY variable was set,
-> or no headful library support was found,
-> but this program performed an operation which requires it.
-> 	at java.desktop/java.awt.GraphicsEnvironment.checkHeadless(GraphicsEnvironment.java:158)
-> 	at java.desktop/java.awt.Window.<init>(Window.java:518)
-> 	at java.desktop/java.awt.Frame.<init>(Frame.java:428)
-> 	at java.desktop/java.awt.Frame.<init>(Frame.java:393)
-> 	at java.desktop/javax.swing.SwingUtilities$SharedOwnerFrame.<init>(SwingUtilities.java:1919)
-> 	at java.desktop/javax.swing.SwingUtilities.getSharedOwnerFrame(SwingUtilities.java:1987)
-> 	at java.desktop/javax.swing.JDialog.<init>(JDialog.java:276)
-> 	at java.desktop/javax.swing.JDialog.<init>(JDialog.java:210)
-> 	at java.desktop/javax.swing.JDialog.<init>(JDialog.java:158)
-> 	at org.jackhuang.hmcl.util.SelfDependencyPatcher$ProgressFrame.<init>(SelfDependencyPatcher.java:396)
-> 	at org.jackhuang.hmcl.util.SelfDependencyPatcher.fetchDependencies(SelfDependencyPatcher.java:277)
-> 	at org.jackhuang.hmcl.util.SelfDependencyPatcher.patch(SelfDependencyPatcher.java:185)
-> 	at org.jackhuang.hmcl.EntryPoint.checkJavaFX(EntryPoint.java:185)
-> 	at org.jackhuang.hmcl.EntryPoint.main(EntryPoint.java:55)
-> 	at org.jackhuang.hmcl.Main.main(Main.java:78)
-> ^Cdev@192:~/.local/opt/hmcl$ 
-> ```
->
-> 这个 `java.awt.HeadlessException` 错误表明 Java 无法找到图形显示环境
->
-> **Fedora 43 已全面转向 Wayland（不再默认支持 `X11`）**，同时 **`JavaFX` 包在新版 Fedora 中发生了重大变化** —— **`java-\*-openjdk-javafx` 包已被移除**，因为上游 `OpenJDK` 不再包含 `JavaFX`，而 Fedora 也停止打包它
->
-> Fedora 自 **Fedora 38 起不再打包 `JavaFX`**，因为 Oracle 不再允许其与 `OpenJDK` 一起分发。 
->
+## **问题现象**
+
+直接 `java -jar HMCL-3.7.5.jar` 出现如下错误
+
+``` shell 
+dev@192:~/.local/opt/hmcl$ java -jar HMCL-3.7.5.jar 
+[09:47:11] [@.util.SelfDependencyPatcher.patch/INFO] Missing JavaFX dependencies, attempting to patch in missing classes
+Exception in thread "main" java.awt.HeadlessException: 
+No X11 DISPLAY variable was set,
+or no headful library support was found,
+but this program performed an operation which requires it.
+	at java.desktop/java.awt.GraphicsEnvironment.checkHeadless(GraphicsEnvironment.java:158)
+	at java.desktop/java.awt.Window.<init>(Window.java:518)
+	at java.desktop/java.awt.Frame.<init>(Frame.java:428)
+	at java.desktop/java.awt.Frame.<init>(Frame.java:393)
+	at java.desktop/javax.swing.SwingUtilities$SharedOwnerFrame.<init>(SwingUtilities.java:1919)
+	at java.desktop/javax.swing.SwingUtilities.getSharedOwnerFrame(SwingUtilities.java:1987)
+	at java.desktop/javax.swing.JDialog.<init>(JDialog.java:276)
+	at java.desktop/javax.swing.JDialog.<init>(JDialog.java:210)
+	at java.desktop/javax.swing.JDialog.<init>(JDialog.java:158)
+	at org.jackhuang.hmcl.util.SelfDependencyPatcher$ProgressFrame.<init>(SelfDependencyPatcher.java:396)
+	at org.jackhuang.hmcl.util.SelfDependencyPatcher.fetchDependencies(SelfDependencyPatcher.java:277)
+	at org.jackhuang.hmcl.util.SelfDependencyPatcher.patch(SelfDependencyPatcher.java:185)
+	at org.jackhuang.hmcl.EntryPoint.checkJavaFX(EntryPoint.java:185)
+	at org.jackhuang.hmcl.EntryPoint.main(EntryPoint.java:55)
+	at org.jackhuang.hmcl.Main.main(Main.java:78)
+^Cdev@192:~/.local/opt/hmcl$ 
+```
+
+这个 `java.awt.HeadlessException` 错误表明 Java 无法找到图形显示环境
+
+**Fedora 43 （已全面转向 Wayland），这个问题尤其突出（不再默认支持 `X11`）**，因为：
+ 
+ - Java AWT/Swing 在 Wayland 下支持不完善，需要强制使用 X11 后端
+ - 自 Fedora  **Fedora 38 起，官方仓库不再提供 **`java-\*-openjdk-javafx` 包（OpenJDK 已剥离 JavaFX），导致 HMCL 无法自动获取 JavaFX 依赖
+
+正确解决方案：手动提供 JavaFX 并启用 X11 兼容
+
+由于系统无法通过 dnf 安装 JavaFX，你需要 **手动下载 JavaFX SDK** 并运行 HMCL 时显式指定模块路径
 
 ---
 
-## 正确解决方案：手动提供  `JavaFX`
-
-由于系统无法通过 `dnf` 安装 `JavaFX`，你需要 **手动下载 `JavaFX SDK`** 并运行 `HMCL` 时显式指定模块路径。
+## 解决方案
 
 ### 1. 下载 `JavaFX for Linux (x64)`
 
+访问 GluonHQ 官网 (https://gluonhq.com/products/javafx/) 下载适合 Linux x64 的 JavaFX SDK。 或者使用命令行：
+
 下载后解压，例如：
 
-```
+``` shell 
 cd ~/Downloads
 wget https://download2.gluonhq.com/openjfx/21.0.2/openjfx-21.0.2_linux-x64_bin-sdk.zip
 unzip openjfx-21.0.2_linux-x64_bin-sdk.zip
 mv javafx-sdk-21.0.2 ~/javafx-sdk
 ```
 
-### 2. 在 Wayland 下启用 `X11`兼容（重要！）
+### 2. 在 Wayland 下启用 `X11`兼容
 
 虽然 GNOME 默认用 Wayland，但 **`Java AWT/Swing` 在 `Wayland` 下支持不完整**，建议强制使用 `X11` 后端：
 
-```
+```  shell 
 export GDK_BACKEND=x11
 export _JAVA_AWT_WM_NONREPARENTING=1  # 避免窗口管理器问题（可选）
 ```
 
 ### 3. 使用 JavaFX 模块运行 HMCL
 
-```
-cd ~/games
+``` shell 
+cd ~/xxx # 进入 HMCL-3.7.5.jar 所在的目录
 java \
   --module-path ~/javafx-sdk/lib \
   --add-modules javafx.controls,javafx.fxml,javafx.swing,javafx.media \
   -jar HMCL-3.7.5.jar
 ```
 
-<!--这样 HMCL 就能正常加载 JavaFX 并显示界面-->
+### 4. 结束了？
 
-```
+``` shell 
 dev@192:~/.local/opt/hmcl$ java --module-path ~/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml,javafx.swing,javafx.media -jar HMCL-3.7.5.jar 
 [10:03:10] [@.Launcher.main/INFO] *** HMCL 3.7.5 ***
 [10:03:10] [@.Launcher.main/INFO] Operating System: Fedora Linux 43 (Workstation Edition) (Linux 6.17.8-300.fc43.x86_64)
@@ -206,5 +208,85 @@ dev@192:~/.local/opt/hmcl$ java --module-path ~/javafx-sdk/lib --add-modules jav
 dev@192:~/.local/opt/hmcl$ 
 ```
 
-2025年11月22日 10:49:20
+--- 
+
+## **最后优化**
+
+每次输入长串命令很麻烦，可以写一个脚本
+
+### 1. 将 HMCL.jar 放置于 /home/dev/.local/opt/hmcl/
+
+``` shell 
+mkdir /home/dev/.local/opt/hmcl/
+cd /home/dev/.local/opt/hmcl/ # 这里 dev 字样换成你的用户名 
+```
+
+### 2. 编写启动脚本
+
+``` shell 
+vim run.sh
+```
+
+run.sh:
+
+``` shell 
+#!/bin/bash
+cd "$(dirname "$0")"
+export GDK_BACKEND=x11
+java \
+  --module-path "$HOME/javafx-sdk/lib" \
+  --add-modules javafx.controls,javafx.fxml,javafx.swing,javafx.media \
+  -jar HMCL-3.7.5.jar
+```
+
+赋予执行权限：
+
+``` shell 
+chmod +x run.sh
+```
+
+### 3. 创建桌面快捷方式
+
+如果想从应用菜单启动，可以创建 .desktop 文件
+
+图标可以直接下载官方仓库里的
+https://github.com/HMCL-dev/HMCL/blob/main/HMCL/src/main/resources/assets/img/icon%408x.png
+
+如果访问失败可以用我上传的蓝奏云 (图像来源即上述仓库)
+https://wwaoe.lanzoue.com/iTqn13ijfbre 
+密码:8smb
+
+我们开始
+
+``` shell 
+cd ~.local/share/applications/
+vim hmcl.desktop
+```
+
+hmcl.desktop:
+
+填入以下内容（请将 Exec 和 Icon 路径替换为实际位置）：
+
+``` PlainText 
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=HMCL
+Comment=HMCL
+Exec=/home/dev/.local/opt/hmcl/run.sh
+Icon=/home/dev/.local/opt/hmcl/hmcl.png
+Terminal=false
+StartupNotify=true
+Categories=Games;Minecraft;
+```
+
+### 4. 更新桌面数据库
+
+``` shell 
+update-desktop-database ~/.local/share/applications
+```
+
+## **结束了，再一次**
+
+--- 
  
